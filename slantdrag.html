@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag Dot on a Line</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Line parameters
+        const x0 = 100; // x-coordinate of point on the line
+        const y0 = 100; // y-coordinate of point on the line
+        const m = 6;    // slope of the line
+
+        // Dot properties
+        let dot = { x: x0, y: y0, radius: 5 };
+        let isDragging = false;
+
+        // Draw the line and dot
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the line
+            ctx.beginPath();
+            ctx.moveTo(0, y0 - m * (x0 - 0));
+            ctx.lineTo(canvas.width, y0 + m * (canvas.width - x0));
+            ctx.strokeStyle = 'blue';
+            ctx.stroke();
+
+            // Draw the dot
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+        }
+
+        // Find the closest point on the line to a given point
+        function closestPointOnLine(x, y) {
+            const dx = 1;
+            const dy = m;
+            const t = ((x - x0) * dx + (y - y0) * dy) / (dx * dx + dy * dy);
+            return {
+                x: x0 + t * dx,
+                y: y0 + t * dy
+            };
+        }
+
+        // Mouse event handlers
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // Check if the mouse is on the dot
+            const distance = Math.hypot(mouseX - dot.x, mouseY - dot.y);
+            if (distance <= dot.radius) {
+                isDragging = true;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                // Constrain the dot to the line
+                const closestPoint = closestPointOnLine(mouseX, mouseY);
+                dot.x = closestPoint.x;
+                dot.y = closestPoint.y;
+
+                draw();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+
+        // Initial drawing
+        draw();
+    </script>
+</body>
+</html>

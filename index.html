@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouthpiece Shit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .slider-container {
+            margin-bottom: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>B-Spline Curve</h1>
+    <div class="container">
+        <select id="typeSelector">
+            <option value="S">S</option>
+            <option value="A">A</option>
+            <option value="T">T</option>
+            <option value="B">B</option>
+        </select>
+
+    </div>
+
+    <div class="slider-container">
+        <label for="tipOpening">Tip Opening: </label><input type="range" id="tipOpeningSlider" min="50" max="145" value="85"><input type="number" id="tipOpeningNumber" value="85"><br>
+        <label for="facingLength">Facing Length: </label><input type="range" id="facingLengthSlider" min="15" max="40" value="25"> <input type="number" id="facingLengthNumber" value="25"><br>
+
+    </div>
+        <div class="controls" id="splineControls">
+    </div>
+    <canvas id="bsplineCanvas" width="150" height="50"></canvas>
+
+    <script src="app.js"></script>
+</body>
+</html>
