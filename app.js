@@ -438,10 +438,10 @@ function Bsfromls(mpc) {
 })
 }
 const templateFile = {
-  S:'/templates/soprano.json',
-  A:'/templates/alto.json',
-  T:'/templates/tenor.json',
-  B:'/templates/baritone.json'
+  S:'templates/soprano.json',
+  A:'templates/alto.json',
+  T:'templates/tenor.json',
+  B:'templates/baritone.json'
 }
 function toggleControlPoint(index, enabled,mpc) {
   mpc.Bs[index].enabled = enabled;
