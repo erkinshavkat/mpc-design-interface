@@ -104,8 +104,18 @@ canvas.height=canvas.height*factor;
 ctx.setTransform(factor, 0, 0, factor, 0, 0);
 ctx.translate(0,(canvas.height/2)/factor);
 ctx.rotate(3*Math.PI/2);
-
 ctx.lineWidth=2/factor;
+
+const boreCanvas = document.getElementById('chamberCanvas');
+const bctx = boreCanvas.getContext('2d');
+boreCanvas.width=boreCanvas.width*factor;
+boreCanvas.height=boreCanvas.height*factor;
+bctx.setTransform(factor, 0, 0, factor, 0, 0);
+bctx.translate((boreCanvas.height/2)/factor,(boreCanvas.height/2)/factor);
+bctx.lineWidth=2/factor;
+
+
+
 // Update control points based on slider values
 
 // Draw the B-spline curve
@@ -181,7 +191,7 @@ function threePtCirc(A, B, C) {
 
   return { centerX: h, centerY:k , radius: r };
 }
-function lineCircIntersect(circle, point,slope) {
+function lineCircIntersect(circle, point,slope,returnLargerY=false) {
 
   const h=circle.centerX;
   const k=circle.centerY;
@@ -220,8 +230,11 @@ function lineCircIntersect(circle, point,slope) {
   if (discriminant === 0) {
       return [intersections[0]];
   }
-
+  if (returnLargerY) {
+    return intersections.reduce((maxPoint, point) => (point.y > maxPoint.y ? point : maxPoint));
+  } else{
   return intersections.reduce((minPoint, point) => (point.y < minPoint.y ? point : minPoint));
+  }
 }
 function ptCoords(mpc) {
   let Q={x:mpc.bottomOffsetX, y:mpc.bottomOffsetY};
@@ -229,10 +242,9 @@ function ptCoords(mpc) {
   let A={x:-mpc.largestRad,y:mpc.shankLength};
 
   let phi=mpc.taperAngle;
-  let theta=mpc.tableAngle-Math.PI/2;
   
   
-  let Sy=mpc.totalLength-mpc.facingLength * Math.cos(theta);
+  let Sy=mpc.totalLength-mpc.facingLength * Math.cos(mpc.theta);
   let S={x:tableSlope(Sy,mpc),y:Sy}
   
   let Dy=mpc.totalLength;
@@ -243,7 +255,7 @@ function ptCoords(mpc) {
   let P={x:-mpc.largestRad,y:mpc.biteEndingHeight};
 
   let Ey=mpc.totalLength-mpc.bitePosition;
-  let E={x:tableSlope(Ey,mpc)-mpc.bitePositionThickness / Math.cos(theta),y:Ey}
+  let E={x:tableSlope(Ey,mpc)-mpc.bitePositionThickness / Math.cos(mpc.theta),y:Ey}
 
   let Oy=mpc.totalLength-mpc.tipRailWidth;
   let O={x:facingXCoord(Oy,mpc),y:Oy};  
@@ -251,24 +263,23 @@ function ptCoords(mpc) {
   let Wy=windowVertex(mpc).y-mpc.windowLength-mpc.windowBottomWidth/2;
   let W={x:tableSlope(Wy,mpc),y:Wy};
   
-  let lenOG=(tableSlope(Oy,mpc)-O.x)*Math.cos(theta);
+  let lenOG=(tableSlope(Oy,mpc)-O.x)*Math.cos(mpc.theta);
 
-  let G={x:O.x+lenOG*Math.cos(theta),y:O.y+lenOG*Math.sin(theta)};
+  let G={x:O.x+lenOG*Math.cos(mpc.theta),y:O.y+lenOG*Math.sin(mpc.theta)};
   let Kl={x:mpc.bottomBoreDis, y:mpc.borePosition};
 
 
-  return {Q:Q, A:A, S:S, D:D , F:F, P:P, E:E, O:O, W:W,G:G, Kl:Kl, phi:phi,theta:theta}
+  return {Q:Q, A:A, S:S, D:D , F:F, P:P, E:E, O:O, W:W,G:G, Kl:Kl, phi:phi}
 }
 function setupTs(mpc) {
   geomPts=ptCoords(mpc);
 
   let G= geomPts.G;
 
-  let theta=geomPts.theta;
   let h=mpc.interpGridSize;
   let Ts = Array.from({ length:mpc.numOfInternalPt }, (_, n) =>({ 
-    x:G.x+(n+1)*h*Math.sin(theta), 
-    y:G.y-(n+1)*h*Math.cos(theta)}));
+    x:G.x+(n+1)*h*Math.sin(mpc.theta), 
+    y:G.y-(n+1)*h*Math.cos(mpc.theta)}));
   mpc.Ts=Ts;
 }
 
@@ -308,7 +319,9 @@ function drawContour(mpc) {
   let CAngle=Math.atan2(C.y - beakCirc.centerY, C.x - beakCirc.centerX);
   let roundControlPts=[{x:mpc.topBoreDis, y:mpc.borePosition},{x:Math.min(mpc.topBoreDis,mpc.innerRadius), y:W.y},W]
   
-
+  bctx.beginPath();
+  bctx.arc(0,0,12,0,2*Math.PI);
+  bctx.stroke()
 
   ctx.setLineDash([]);
   ctx.strokeStyle = "black";
@@ -428,9 +441,8 @@ function lsFromBs(mpc) {
 function Bsfromls(mpc) {
   mpc.Bs=mpc.Ts.map((tPoint, index) => {
   const l = mpc.ls[index];
-  let theta=mpc.tableAngle-Math.PI/2;
-  let bx=tPoint.x - l * Math.cos(theta);
-  let by=tPoint.y - l * Math.sin(theta);
+  let bx=tPoint.x - l * Math.cos(mpc.theta);
+  let by=tPoint.y - l * Math.sin(mpc.theta);
   return {
       x: bx,
       y: by,
@@ -453,17 +465,18 @@ function updateLsValue(index, l,mpc) {
   Bsfromls(mpc);
   drawContour(mpc);
 }
-function updateType() {
-  let selectedOption = document.getElementById('typeSelector').value;
-  
-  let fileName=templateFile[selectedOption];
+let mpcType
+
+function updateType(mpcType) {
+ 
+  let fileName=templateFile[mpcType];
   // console.log(fileName)
   // Construct the URL for the JSON file
   // /home/hw/Documents/openmpcs/backendcode/code/mpcTemplates/
   fetch(fileName)
       .then(response => {
           if (!response.ok) {
-              throw new Error(`Failed to load ${url}: ${response.statusText}`);
+              throw new Error(`Failed to load: ${response.statusText}`);
           }
           return response.json();
       })
@@ -478,6 +491,7 @@ function updateType() {
           let maxFacing=data.totalLength-(windowVertex(data).y-data.windowLength-data.windowBottomWidth/2);
           mpc.tipOpening=tipOpeningIn*25.4/1000;
           mpc.ls=ls
+          mpc.theta=mpc.tableAngle-Math.PI/2;
           setupTs(mpc)
           Bsfromls(mpc)
           document.getElementById('tipOpeningSlider').min=data.minTip;
@@ -520,7 +534,10 @@ function setupBaffleControls(mpc) {
       input.id = `input${index}`;
       input.addEventListener("input", (e) => {
           const newValue = parseInt(e.target.value, 10);
-          updateLsValue(index, newValue,mpc);
+          let clippedValue=Math.max(0,Math.min(newValue,computeMaxl(index,mpc)));
+          let l=Math.round(clippedValue*20)/20
+          updateLsValue(index, l,mpc);
+          input.value=l;
       });
 
       const checkbox = document.createElement("input");
@@ -567,6 +584,28 @@ function deTransformMouseCoord(x,y) {
   return { x: preTransformedX, y: preTransformedY };
 }
 
+function computeMaxl(index,mpc) {
+  //compute that max l at T[index]
+
+  let geomPts=ptCoords(mpc);
+  let beakCirc=threePtCirc(geomPts.F,geomPts.E,geomPts.P);
+  let tPoint=mpc.Ts[index];
+  let intersection=lineCircIntersect(beakCirc,tPoint,Math.tan(mpc.theta),returnLargerY=true);
+  let maxl= Math.hypot(intersection.y-tPoint.y,intersection.x-tPoint.x);
+  return maxl-1
+}
+
+function computeLValue(nearestPt,index,mpc)  {
+  // given the poitn nearest to the mouse on the TB line, compute the corresponding l, enforcing minimum = 0 and maximum = beakCirc  
+  if (nearestPt.x>=tableSlope(nearestPt.y,mpc)){
+    //clipping 0, if the point is to above the table
+    return 0
+  }
+  let l=Math.hypot(nearestPt.y - mpc.Ts[index].y, nearestPt.x - mpc.Ts[index].x);
+  let maxl= computeMaxl(index,mpc)
+  return Math.min(maxl, l);
+}
+
 function setupDragging(mpc) {
   let draggingPoint = null;
 
@@ -588,10 +627,10 @@ function setupDragging(mpc) {
       const mouse=deTransformMouseCoord(rawMouseX,rawMouseY);
       if (draggingPoint) {
           let ptIndex=mpc.Bs.indexOf(draggingPoint);
-          nearestPt=closestPointOnLine(mouse.x,mouse.y,mpc,ptIndex);
+          let nearestPt=closestPointOnLine(mouse.x,mouse.y,mpc,ptIndex);
           //draggingPoint.x = nearestPt.x;
           //draggingPoint.y = nearestPt.y;
-          let l=Math.hypot(nearestPt.y - mpc.Ts[ptIndex].y, nearestPt.x - mpc.Ts[ptIndex].x);
+          let l=computeLValue(nearestPt,ptIndex,mpc);
           mpc.ls[ptIndex]=Math.round(l*20)/20;
           let theta=mpc.tableAngle-Math.PI/2;
           let tPoint=mpc.Ts[ptIndex];
@@ -608,8 +647,6 @@ function setupDragging(mpc) {
       draggingPoint = null;
   });
 }
-document.getElementById('typeSelector').addEventListener('click', updateType) 
-
 document.getElementById('tipOpeningSlider').addEventListener('input', updateTip)
 document.getElementById('facingLengthSlider').addEventListener('input', updateTip) 
 
@@ -630,5 +667,11 @@ document.getElementById('facingLengthNumber').addEventListener('input', (e) => {
   drawContour(mpc)
   };
 });
-// Initial draw
-updateType();
+document.querySelectorAll('input[name="type"]').forEach((radio) => {
+  radio.addEventListener('change', (event) => {
+      let mpcType = event.target.value;
+      // Call your existing functions here based on the selected value
+      updateType(mpcType);
+  });
+});
+updateType('S')
