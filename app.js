@@ -95,7 +95,7 @@ function typeChange(mpcType) {
           setupBaffleControls(mpc);
           setupDragging(mpc);
           mpcDraw.drawContour(mpc,canvas);
-
+          boreTypeChange('round');
       })
 }
 
@@ -243,25 +243,36 @@ boreSelector.forEach((radio) => {
       boreTypeChange(boreType);
   });
 });
-
 function updateBore(mpc) {
   bctx.clearRect(-boreCanvas.width, -boreCanvas.height, 2*boreCanvas.width, 2*boreCanvas.height);
-
+  let effInnerRad=12;
+  let effOuterRad=15;
   bctx.beginPath();
-  bctx.arc(0,0,mpc.circBoreRatio*15,0,2*Math.PI);
-  bctx.stroke();
-  mpc.topBoreDis=mpc.innerRadius*mpc.circBoreRatio;
-  mpc.bottomBoreDis=-mpc.innerRadius*mpc.circBoreRatio;
+  bctx.arc(0,0,effInnerRad,0,2*Math.PI,false);
+  bctx.moveTo(effOuterRad,0)
+  bctx.arc(0,0,effOuterRad,0,2*Math.PI,true);
+  bctx.stroke();  
+  bctx.fillStyle = "rgb(0 0 0 / 20%)";
+  bctx.fill();
+
+  switch(mpc.boreType) {
+    case 'round':
+      bctx.beginPath();
+      bctx.arc(0,0,mpc.circBoreRatio*effInnerRad,0,2*Math.PI);
+      bctx.stroke();
+      mpc.topBoreDis=mpc.innerRadius*mpc.circBoreRatio;
+      mpc.bottomBoreDis=-mpc.innerRadius*mpc.circBoreRatio;
+      break;
+  }
   mpcDraw.drawContour(mpc,canvas)
 }
 function boreTypeChange(boreType){
   const controlDiv = document.createElement("div");
   controlDiv.className = "boreControl";
   boreControlsDiv.innerHTML = "";
+  mpc.boreType=boreType;
   switch(boreType) {
     case 'round':
-      mpc.boreType='round';
-
       const label=document.createElement('lebel');
       label.textContent = 'Radius';
       label.htmlFor = 'Radius'
@@ -269,7 +280,7 @@ function boreTypeChange(boreType){
       const slider=document.createElement('input')
       slider.type='range';
       slider.id='circBoreRadSlider';
-      slider.min='0.9';
+      slider.min='0.85';
       slider.max='1.1';
       slider.step='0.01';
       slider.value='1'
@@ -310,4 +321,3 @@ function boreTypeChange(boreType){
 }
 
 typeChange('S')
-boreTypeChange('round')
