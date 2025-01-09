@@ -12,7 +12,10 @@ const ctx = canvas.getContext('2d');
 
 const boreCanvas = document.getElementById('chamberCanvas');
 const bctx = boreCanvas.getContext('2d');
-
+let factor=10;
+bctx.setTransform(factor, 0, 0, factor, 0, 0);
+bctx.translate((boreCanvas.height/2)/factor,(boreCanvas.height/2)/factor);
+bctx.lineWidth=2/factor;
 
 const tipOpeningSlider=document.getElementById('tipOpeningSlider');
 const tipOpeningNumber=document.getElementById('tipOpeningNumber');
@@ -61,19 +64,15 @@ function typeChange(mpcType) {
       .then(data => {
           mpc=data;
           mpc.mpcType=mpcType;
-          console.log(canvas.height)
-          let factor=canvas.height/(300/scaleFactors[mpcType]);
+          let factor=scaleFactors[mpcType];
           let shankCutoff=(data.totalLength-data.borePosition-10);
           mpc.shankCutoff=shankCutoff;
-          mpc.factor=factor;
           ctx.resetTransform();
           ctx.scale(factor,factor);
           ctx.translate(-shankCutoff,(canvas.height/2)/factor);
           ctx.lineWidth=2/factor;
 
-          bctx.setTransform(factor, 0, 0, factor, 0, 0);
-          bctx.translate((boreCanvas.height/2)/factor,(boreCanvas.height/2)/factor);
-          bctx.lineWidth=2/factor;
+
           ctx.rotate(3*Math.PI/2);
           
           let tipOpeningIn = data.defaultTip;
@@ -166,7 +165,7 @@ function setupBaffleControls(mpc) {
   mpc.Bs.forEach((point, index) => {
     const rect = canvas.getBoundingClientRect();
 
-      let controlsX=rect.left + mpc.factor * (mpc.Ts[index].y - mpc.shankCutoff);
+      let controlsX=rect.left + scaleFactors[mpc.mpcType] * (mpc.Ts[index].y - mpc.shankCutoff);
       let controlsY=rect.top;
       let maxl=mpcCompute.computeMaxl(index,mpc);
       const controlDiv = document.createElement("div");
@@ -260,7 +259,7 @@ function setupDragging(mpc) {
       const mouse=mpcCompute.deTransformMouseCoord(rawMouseX,rawMouseY,canvas);
       draggingPoint = mpc.Bs.find(
           point => point.enabled &&
-              Math.hypot(point.x - mouse.x, point.y - mouse.y) < factor/5
+              Math.hypot(point.x - mouse.x, point.y - mouse.y) < factor/10
       );
   });
 
@@ -323,46 +322,6 @@ function updateBore(mpc) {
   }
   mpcDraw.drawContour(mpc,canvas)
 }
-function setupRoundBoreControls(controlDiv) {
-  const label=document.createElement('label');
-  label.textContent = 'Radius';
-  label.htmlFor = 'Radius'
-
-  const slider=document.createElement('input')
-  slider.type='range';
-  slider.id='circBoreRadSlider';
-  slider.min='0.85';
-  slider.max='1.1';
-  slider.step='0.01';
-  slider.value='1'
-
-  const input = document.createElement("input");
-  input.type = "number";
-  input.value = '1';
-  input.step='0.01';
-  input.id='circBoreRadBox';
-  input.style.width='40px';
-  let boreInputs=[slider,input];
-  slider.addEventListener("input", () => {
-    const newBoreValue = parseFloat(slider.value, 10);
-    syncValue(newBoreValue,boreInputs);
-    mpc.circBoreRatio=newBoreValue;
-    updateBore(mpc)
-});
-  input.addEventListener("blur", () => {
-    let newBoreValue = parseFloat(input.value, 10);
-    newBoreValue=mpcCompute.clipMinMax(newBoreValue,slider.min,slider.max)
-    syncValue(newBoreValue,boreInputs);
-    mpc.circBoreRatio=newBoreValue;
-    updateBore(mpc)
-});
-  controlDiv.appendChild(label);
-  controlDiv.appendChild(slider);
-  controlDiv.appendChild(input);
-  boreControlsDiv.appendChild(controlDiv);
-  mpc.circBoreRatio=1;
-
-}
 function boreTypeChange(boreType){
   const controlDiv = document.createElement("div");
   controlDiv.className = "boreControl";
@@ -370,7 +329,43 @@ function boreTypeChange(boreType){
   mpc.boreType=boreType;
   switch(boreType) {
     case 'round':
-      setupRoundBoreControls(controlDiv)
+      const label=document.createElement('lebel');
+      label.textContent = 'Radius';
+      label.htmlFor = 'Radius'
+
+      const slider=document.createElement('input')
+      slider.type='range';
+      slider.id='circBoreRadSlider';
+      slider.min='0.85';
+      slider.max='1.1';
+      slider.step='0.01';
+      slider.value='1'
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.value = '1';
+      input.step='0.01';
+      input.id='circBoreRadBox';
+      input.style.width='40px';
+      let boreInputs=[slider,input];
+      slider.addEventListener("input", () => {
+        const newBoreValue = parseFloat(slider.value, 10);
+        syncValue(newBoreValue,boreInputs);
+        mpc.circBoreRatio=newBoreValue;
+        updateBore(mpc)
+  });
+      input.addEventListener("blur", () => {
+        let newBoreValue = parseFloat(input.value, 10);
+        newBoreValue=mpcCompute.clipMinMax(newBoreValue,slider.min,slider.max)
+        syncValue(newBoreValue,boreInputs);
+        mpc.circBoreRatio=newBoreValue;
+        updateBore(mpc)
+  });
+      controlDiv.appendChild(label);
+      controlDiv.appendChild(slider);
+      controlDiv.appendChild(input);
+      boreControlsDiv.appendChild(controlDiv);
+      mpc.circBoreRatio=1;
       updateBore(mpc)
       break;
     case 'slot':

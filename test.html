@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouthpiece UI</title>
+    <link href="test.css" rel="stylesheet" />
+</head>
+<body>
+    <h1>Mouthpiece Design</h1>
+
+    <!-- Type Area -->
+    <div id="typeSelector">
+        <label><input type="radio" name="type" value="S" checked> S</label>
+        <label><input type="radio" name="type" value="A"> A</label>
+        <label><input type="radio" name="type" value="T"> T</label>
+        <label><input type="radio" name="type" value="B"> B</label>
+    </div>
+
+    <!-- Tip Opening Area -->
+    <div id="tipOpeningArea">
+        <label for="tipOpening">Tip Opening: </label>
+        <input type="range" id="tipOpeningSlider" min="50" max="145" value="85">
+        <input type="number" id="tipOpeningNumber" value="85">
+    </div>
+
+    <!-- Facing Length Area -->
+    <div id="facingLengthArea">
+        <label for="facingLength">facingLength: </label>
+        <input type="range" id="facingLengthSlider" min="15" max="40" value="25">
+        <input type="number" id="facingLengthNumber" value="25">
+    </div>
+
+    <div id="mainContainer">
+        <!-- Baffle Area -->
+        <div id="baffleArea">
+            <div class="controls" id="splineControls"></div>
+            <canvas id="bsplineCanvas" width="1200" height="450"></canvas>
+        </div>
+        <!-- Bore Area -->
+        <div id="boreArea">
+            <div id="boreSelector">
+                <label><input type="radio" name="boreType" value="round" checked> Round</label>
+                <label><input type="radio" name="boreType" value="slot"> Slot</label>
+                <label><input type="radio" name="boreType" value="horseshoe"> Horseshoe</label>
+            </div>
+            <div class="controls" id="boreControls"></div>
+            <canvas id="chamberCanvas" width="450" height="450"></canvas>
+        </div>
+
+
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    border-bottom: 2px solid black;
+    padding: 10px;
+    margin: 0;
+}
+
+#typeSelector, #tipOpeningArea, #facingLengthArea {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 10px 0;
+}
+
+#tipOpeningSlider, #facingLengthSlider {
+    width: 80%;
+}
+
+#tipOpeningNumber, #facingLengthNumber {
+    width: 15%;
+    margin-left: 5px;
+}
+
+#boreArea {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+#boreSelector {
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 10px;
+}
+
+#boreControls {
+    margin: 10px 0;
+}
+
+
+#baffleArea {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+#splineControls {
+    margin-bottom: 10px;
+    height: 200px;
+}
+
+
+#mainContainer {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+.vertical-slider {
+    transform: rotate(90deg); /* Rotate to make vertical */
+    transform-origin: 50% 50%; /* Ensure the rotation is centered */
+}
