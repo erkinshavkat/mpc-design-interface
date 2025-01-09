@@ -79,7 +79,7 @@ export function drawContour(mpc,canvas) {
   ctx.lineTo(Q.x, Q.y);
   ctx.stroke();
   ctx.closePath(); // Ensures the path is closed if not already
-  ctx.fillStyle = "rgb(0 0 0 / 20%)"; // Set the fill color
+  ctx.fillStyle = "rgb(0 0 0 / 10%)"; // Set the fill color
   ctx.fill(); // Fill the inside of the shape
 
 
@@ -101,7 +101,6 @@ export function drawContour(mpc,canvas) {
   ctx.lineTo(-mpc.innerRadius, 0);
   ctx.stroke();
   ctx.closePath(); // Ensures the path is closed if not already
-  ctx.fillStyle = "rgb(0 0 0 / 20%)"; // Set the fill color
   ctx.fill(); // Fill the inside of the shape
 
   ctx.beginPath();
@@ -120,14 +119,12 @@ export function drawContour(mpc,canvas) {
 
   ctx.setLineDash([0.2, 1]);
   ctx.strokeStyle = "grey";
-  ctx.beginPath(); // Start a new path
-  ctx.moveTo(O.x,O.y); // Move to the top point
-  ctx.lineTo(G.x,G.y); // Draw a line to the bottom point
-  ctx.stroke();
+
   for (let i = 0; i < mpc.numOfInternalPt; i++) {
     
     ctx.beginPath(); // Start a new path
-    ctx.moveTo(mpc.Ts[i].x, mpc.Ts[i].y); // Move to the top point
+    ctx.moveTo(50, mpc.Ts[i].y);
+    ctx.lineTo(mpc.Ts[i].x, mpc.Ts[i].y); // Move to the top point
     ctx.lineTo(mpc.Bs[i].x, mpc.Bs[i].y); // Draw a line to the bottom point
     ctx.stroke(); // Render the line
   }

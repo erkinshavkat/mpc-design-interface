@@ -317,3 +317,6 @@ export function computeLValue(nearestPt,index,mpc)  {
   let maxl= computeMaxl(index,mpc)
   return Math.min(maxl, l);
 }
+export function clipMinMax(x,minValue,maxValue) {
+  return Math.max(minValue,Math.min(x,maxValue));
+}

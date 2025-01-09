@@ -1,0 +1,16 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+.slider-container {
+    margin-bottom: 20px;
+}
+canvas {
+    border: 1px solid black;
+}
+.vertical-slider {
+    transform: rotate(90deg); /* Rotate to make vertical */
+    transform-origin: 50% 50%; /* Ensure the rotation is centered */
+  }
+
