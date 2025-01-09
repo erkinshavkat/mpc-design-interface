@@ -3,51 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouthpiece Shit</title>
+    <title>Mouthpiece UI</title>
     <link href="style.css" rel="stylesheet" />
-
 </head>
 <body>
-    <h1>Mouthpiece Shit</h1>
+    <h1>Mouthpiece Design</h1>
 
-        <label>Type:</label>
-        <div id="typeSelector">
-            <label>
-                <input type="radio" name="type" value="S" checked> S
-            </label>
-            <label>
-                <input type="radio" name="type" value="A"> A
-            </label>
-            <label>
-                <input type="radio" name="type" value="T"> T
-            </label>
-            <label>
-                <input type="radio" name="type" value="B"> B
-            </label>
+    <!-- Type Area -->
+    <div id="typeSelector">
+        <label><input type="radio" name="type" value="S" checked> S</label>
+        <label><input type="radio" name="type" value="A"> A</label>
+        <label><input type="radio" name="type" value="T"> T</label>
+        <label><input type="radio" name="type" value="B"> B</label>
+    </div>
+
+    <!-- Tip Opening Area -->
+    <div id="tipOpeningArea">
+        <label for="tipOpening">Tip Opening: </label>
+        <input type="range" id="tipOpeningSlider" min="50" max="145" value="85">
+        <input type="number" id="tipOpeningNumber" value="85">
+    </div>
+
+    <!-- Facing Length Area -->
+    <div id="facingLengthArea">
+        <label for="facingLength">facingLength: </label>
+        <input type="range" id="facingLengthSlider" min="15" max="40" value="25">
+        <input type="number" id="facingLengthNumber" value="25">
+    </div>
+
+    <div id="mainContainer">
+        <!-- Baffle Area -->
+        <div id="baffleArea">
+            <div class="controls" id="splineControls"></div>
+            <canvas id="bsplineCanvas" width="1200" height="450"></canvas>
         </div>
-        <label for="tipOpening">Tip Opening: </label><input type="range" id="tipOpeningSlider" min="50" max="145" value="85"><input type="number" id="tipOpeningNumber" value="85"><br>
-        <label for="facingLength">Facing Length: </label><input type="range" id="facingLengthSlider" min="15" max="40" value="25"> <input type="number" id="facingLengthNumber" value="25"><br>
-
-        <label>Bore:</label>
-        <div id="boreSelector">
-            <label>
-                <input type="radio" name="boreType" value="round" checked> Round
-            </label>
-            <label>
-                <input type="radio" name="boreType" value="slot"> Slot
-            </label>
-            <label>
-                <input type="radio" name="boreType" value="horseshoe"> Horseshoe
-            </label>
-
+        <!-- Bore Area -->
+        <div id="boreArea">
+            <div id="boreSelector">
+                <label><input type="radio" name="boreType" value="round" checked> Round</label>
+                <label><input type="radio" name="boreType" value="slot"> Slot</label>
+                <label><input type="radio" name="boreType" value="horseshoe"> Horseshoe</label>
+            </div>
+            <div class="controls" id="boreControls"></div>
+            <canvas id="chamberCanvas" width="450" height="450"></canvas>
         </div>
-        <div class="controls" id="boreControls"></div>
-        <canvas id="chamberCanvas" width="300" height="300"></canvas>
 
 
-        <label>Baffle:</label>
-        <div class="controls" id="splineControls"></div>
-        <canvas id="bsplineCanvas" width="800" height="300"></canvas>
-<script type="module" src="app.js"></script>
+    </div>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
