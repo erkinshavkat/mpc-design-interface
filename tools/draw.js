@@ -135,3 +135,27 @@ export function drawContour(mpc,canvas) {
     ctx.fill();};
   });
 }
+
+export function drawBore(mpc,boreCanvas) {
+  const bctx = boreCanvas.getContext('2d');
+  bctx.clearRect(-boreCanvas.width, -boreCanvas.height, 2*boreCanvas.width, 2*boreCanvas.height);
+  let effInnerRad=12;
+  let effOuterRad=15;
+  bctx.beginPath();
+  bctx.arc(0,0,effInnerRad,0,2*Math.PI,false);
+  bctx.moveTo(effOuterRad,0)
+  bctx.arc(0,0,effOuterRad,0,2*Math.PI,true);
+  bctx.stroke();  
+  bctx.fillStyle = "rgb(0 0 0 / 10%)";
+  bctx.fill();
+
+  switch(mpc.boreType) {
+    case 'round':
+      bctx.beginPath();
+      bctx.arc(0,0,mpc.circBoreRatio*effInnerRad,0,2*Math.PI);
+      bctx.stroke();
+      mpc.topBoreDis=mpc.innerRadius*mpc.circBoreRatio;
+      mpc.bottomBoreDis=-mpc.innerRadius*mpc.circBoreRatio;
+      break;
+  }
+}

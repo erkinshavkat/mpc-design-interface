@@ -12,7 +12,7 @@ const ctx = canvas.getContext('2d');
 
 const boreCanvas = document.getElementById('chamberCanvas');
 const bctx = boreCanvas.getContext('2d');
-let factor=10;
+let factor=15;
 bctx.setTransform(factor, 0, 0, factor, 0, 0);
 bctx.translate((boreCanvas.height/2)/factor,(boreCanvas.height/2)/factor);
 bctx.lineWidth=2/factor;
@@ -136,10 +136,10 @@ facingLengthNumber.addEventListener('blur', (e) => {
 });
 
 const scaleFactors = {
-  S:12,
-  A:10,
-  T:10,
-  B:10
+  S:18,
+  A:15,
+  T:15,
+  B:15
 }
 
 
@@ -169,7 +169,7 @@ function setupBaffleControls(mpc) {
       let controlsY=rect.top;
       let maxl=mpcCompute.computeMaxl(index,mpc);
       const controlDiv = document.createElement("div");
-      controlDiv.className = "control-point";
+      controlDiv.className = `control-point${index}`;
       const label = document.createElement("label");
       label.textContent = `Point ${index + 1}: `;
       label.htmlFor = `input${index}`;
@@ -177,7 +177,7 @@ function setupBaffleControls(mpc) {
       const input = document.createElement("input");
       input.type = "number";
       input.value = mpc.ls[index];
-      input.id = `input${index}`;
+      input.id = `baffleInput${index}`;
       input.step='0.05';
       input.style="position: absolute;"
       input.style.width='40px';
@@ -193,7 +193,7 @@ function setupBaffleControls(mpc) {
       const slider = document.createElement("input");
       slider.type = "range";
       slider.value = mpc.ls[index];
-      slider.id = `slider${index}`;
+      slider.id = `baffleSlider${index}`;
       slider.step='0.05';
       slider.min = `0`;
       slider.max= `${maxl}`;
@@ -212,7 +212,7 @@ function setupBaffleControls(mpc) {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = point.enabled;
-      checkbox.id = `checkbox${index}`;
+      checkbox.id = `baffleCheckbox${index}`;
 
       checkbox.style="position: absolute;"
 
@@ -242,7 +242,7 @@ function setupBaffleControls(mpc) {
       slider.style.left= `${controlsX-slider.offsetWidth/2}px`;
       slider.style.top= `${controlsY-slider.offsetWidth*0.65}px`;
 
- 
+
       input.style.left= `${controlsX-input.offsetWidth/2}px`;
       input.style.top= `${slider.offsetTop-slider.offsetWidth*0.65}px`;
 
@@ -281,7 +281,7 @@ function setupDragging(mpc) {
           let by=tPoint.y - l * Math.sin(theta);
           draggingPoint.x=bx;
           draggingPoint.y=by;
-          syncValue(l, [document.getElementById(`input${ptIndex}`),document.getElementById(`slider${ptIndex}`)])
+          syncValue(l, [document.getElementById(`baffleInput${ptIndex}`),document.getElementById(`baffleSlider${ptIndex}`)])
           mpcDraw.drawContour(mpc,canvas);
       }
   });
@@ -299,29 +299,7 @@ boreSelector.forEach((radio) => {
       boreTypeChange(boreType);
   });
 });
-function updateBore(mpc) {
-  bctx.clearRect(-boreCanvas.width, -boreCanvas.height, 2*boreCanvas.width, 2*boreCanvas.height);
-  let effInnerRad=12;
-  let effOuterRad=15;
-  bctx.beginPath();
-  bctx.arc(0,0,effInnerRad,0,2*Math.PI,false);
-  bctx.moveTo(effOuterRad,0)
-  bctx.arc(0,0,effOuterRad,0,2*Math.PI,true);
-  bctx.stroke();  
-  bctx.fillStyle = "rgb(0 0 0 / 10%)";
-  bctx.fill();
 
-  switch(mpc.boreType) {
-    case 'round':
-      bctx.beginPath();
-      bctx.arc(0,0,mpc.circBoreRatio*effInnerRad,0,2*Math.PI);
-      bctx.stroke();
-      mpc.topBoreDis=mpc.innerRadius*mpc.circBoreRatio;
-      mpc.bottomBoreDis=-mpc.innerRadius*mpc.circBoreRatio;
-      break;
-  }
-  mpcDraw.drawContour(mpc,canvas)
-}
 function boreTypeChange(boreType){
   const controlDiv = document.createElement("div");
   controlDiv.className = "boreControl";
@@ -352,21 +330,26 @@ function boreTypeChange(boreType){
         const newBoreValue = parseFloat(slider.value, 10);
         syncValue(newBoreValue,boreInputs);
         mpc.circBoreRatio=newBoreValue;
-        updateBore(mpc)
+        mpcDraw.drawBore(mpc,boreCanvas);
+        mpcDraw.drawContour(mpc,canvas);
   });
       input.addEventListener("blur", () => {
         let newBoreValue = parseFloat(input.value, 10);
         newBoreValue=mpcCompute.clipMinMax(newBoreValue,slider.min,slider.max)
         syncValue(newBoreValue,boreInputs);
         mpc.circBoreRatio=newBoreValue;
-        updateBore(mpc)
+        mpcDraw.drawBore(mpc,boreCanvas,canvas);
+        mpcDraw.drawContour(mpc,canvas);
+
   });
       controlDiv.appendChild(label);
       controlDiv.appendChild(slider);
       controlDiv.appendChild(input);
       boreControlsDiv.appendChild(controlDiv);
       mpc.circBoreRatio=1;
-      updateBore(mpc)
+      mpcDraw.drawBore(mpc,boreCanvas,canvas);
+      mpcDraw.drawContour(mpc,canvas);
+
       break;
     case 'slot':
       console.log('slot');

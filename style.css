@@ -20,7 +20,7 @@ h1 {
 }
 
 #tipOpeningSlider, #facingLengthSlider {
-    width: 80%;
+    width: 70%;
 }
 
 #tipOpeningNumber, #facingLengthNumber {
@@ -56,11 +56,14 @@ h1 {
     height: 200px;
 }
 
-
+#chamberCanvas, #bsplineCanvas {
+    border: 2px solid black;
+}
 #mainContainer {
     display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    margin: 20px;
+    margin: 10px;
 }
 .vertical-slider {
     transform: rotate(90deg); /* Rotate to make vertical */
