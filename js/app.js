@@ -1,6 +1,6 @@
-import * as mpcCompute from './tools/compute.js';
+import * as mpcCompute from './utils/compute.js';
 
-import * as mpcDraw from './tools/draw.js';
+import * as mpcDraw from './utils/draw.js'; 
 
 // Initial control points (with default y values)
 let mpc={};
@@ -144,10 +144,10 @@ const scaleFactors = {
 
 
 const templateFile = {
-  S:'templates/soprano.json',
-  A:'templates/alto.json',
-  T:'templates/tenor.json',
-  B:'templates/baritone.json'
+  S:'../assets/templates/soprano.json',
+  A:'../assets/templates/alto.json',
+  T:'../assets/templates/tenor.json',
+  B:'../assets/templates/baritone.json'
 }
 function toggleControlPoint(index, enabled,mpc) {
   mpc.Bs[index].enabled = enabled;
