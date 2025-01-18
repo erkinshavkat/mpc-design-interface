@@ -144,10 +144,10 @@ const scaleFactors = {
 
 
 const templateFile = {
-  S:'../assets/templates/soprano.json',
-  A:'../assets/templates/alto.json',
-  T:'../assets/templates/tenor.json',
-  B:'../assets/templates/baritone.json'
+  S:'./../assets/templates/soprano.json',
+  A:'./../assets/templates/alto.json',
+  T:'./../assets/templates/tenor.json',
+  B:'./../assets/templates/baritone.json'
 }
 function toggleControlPoint(index, enabled,mpc) {
   mpc.Bs[index].enabled = enabled;
