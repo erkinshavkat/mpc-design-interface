@@ -90,10 +90,10 @@ export function computeKnot(controlPoints,m){
   // Combine the arrays
     return [...startPadding, ...coreArray, ...endPadding];  
   }
-export function windowVertex(mpc) {
-  const H = mpc.totalLength - mpc.tipRailWidth;
-  const l = mpc.windowTopWidth;
-  const e = mpc.ellipCurveGap;
+export function windowVertex(state) {
+  const H = state.totalLength - state.tipRailWidth;
+  const l = state.windowTopWidth;
+  const e = state.ellipCurveGap;
 
   const y_top = H - 0.5 * Math.sqrt(-Math.pow(l, 2) + 4 * Math.pow(e / 2 + 0.5 * Math.sqrt(Math.pow(e, 2) + Math.pow(l, 2)), 2)) + e;
   const x_top = l / 2;
@@ -172,65 +172,65 @@ export function lineCircIntersect(circle, point,slope,returnLargerY=false) {
   return intersections.reduce((minPoint, point) => (point.y < minPoint.y ? point : minPoint));
   }
 }
-export function ptCoords(mpc) {
-  let Q={x:mpc.bottomOffsetX, y:mpc.bottomOffsetY};
+export function ptCoords(state) {
+  let Q={x:state.bottomOffsetX, y:state.bottomOffsetY};
 
-  let A={x:-mpc.largestRad,y:mpc.shankLength};
+  let A={x:-state.largestRad,y:state.shankLength};
 
-  let phi=mpc.taperAngle;
+  let phi=state.taperAngle;
   
   
-  let Sy=mpc.totalLength-mpc.facingLength * Math.cos(mpc.theta);
-  let S={x:tableSlope(Sy,mpc),y:Sy}
+  let Sy=state.totalLength-state.facingLength * Math.cos(state.theta);
+  let S={x:tableSlope(Sy,state),y:Sy}
   
-  let Dy=mpc.totalLength;
-  let D={x:facingXCoord(Dy,mpc),y:Dy};
+  let Dy=state.totalLength;
+  let D={x:facingXCoord(Dy,state),y:Dy};
 
-  let F={x:D.x-mpc.tipThickness, y:D.y};
+  let F={x:D.x-state.tipThickness, y:D.y};
 
-  let P={x:-mpc.largestRad,y:mpc.biteEndingHeight};
+  let P={x:-state.largestRad,y:state.biteEndingHeight};
 
-  let Ey=mpc.totalLength-mpc.bitePosition;
-  let E={x:tableSlope(Ey,mpc)-mpc.bitePositionThickness / Math.cos(mpc.theta),y:Ey}
+  let Ey=state.totalLength-state.bitePosition;
+  let E={x:tableSlope(Ey,state)-state.bitePositionThickness / Math.cos(state.theta),y:Ey}
 
-  let Oy=mpc.totalLength-mpc.tipRailWidth;
-  let O={x:facingXCoord(Oy,mpc),y:Oy};  
+  let Oy=state.totalLength-state.tipRailWidth;
+  let O={x:facingXCoord(Oy,state),y:Oy};  
 
-  let Wy=windowVertex(mpc).y-mpc.windowLength-mpc.windowBottomWidth/2;
-  let W={x:tableSlope(Wy,mpc),y:Wy};
+  let Wy=windowVertex(state).y-state.windowLength-state.windowBottomWidth/2;
+  let W={x:tableSlope(Wy,state),y:Wy};
   
-  let lenOG=(tableSlope(Oy,mpc)-O.x)*Math.cos(mpc.theta);
+  let lenOG=(tableSlope(Oy,state)-O.x)*Math.cos(state.theta);
 
-  let G={x:O.x+lenOG*Math.cos(mpc.theta),y:O.y+lenOG*Math.sin(mpc.theta)};
-  let Kl={x:mpc.bottomBoreDis, y:mpc.borePosition};
+  let G={x:O.x+lenOG*Math.cos(state.theta),y:O.y+lenOG*Math.sin(state.theta)};
+  let Kl={x:state.bottomBoreDis, y:state.borePosition};
 
 
   return {Q:Q, A:A, S:S, D:D , F:F, P:P, E:E, O:O, W:W,G:G, Kl:Kl, phi:phi}
 }
-export function setupTs(mpc) {
-  let geomPts=ptCoords(mpc);
+export function initializeTs(state) {
+  let geomPts=ptCoords(state);
 
   let G= geomPts.G;
 
-  let h=mpc.interpGridSize;
-  let Ts = Array.from({ length:mpc.numOfInternalPt }, (_, n) =>({ 
-    x:G.x+(n+1)*h*Math.sin(mpc.theta), 
-    y:G.y-(n+1)*h*Math.cos(mpc.theta)}));
-  mpc.Ts=Ts;
+  let h=state.interpGridSize;
+  let Ts = Array.from({ length:state.numOfInternalPt }, (_, n) =>({ 
+    x:G.x+(n+1)*h*Math.sin(state.theta), 
+    y:G.y-(n+1)*h*Math.cos(state.theta)}));
+  return Ts;
 }
-export function facingXCoord(z, mpc) {
-    // Extracting values from the mpc object
-    const Z0 = mpc.bottomOffsetY;
-    const X0 = mpc.bottomOffsetX;
-    const z0 = mpc.totalLength;
+export function facingXCoord(z, state) {
+    // Extracting values from the state object
+    const Z0 = state.bottomOffsetY;
+    const X0 = state.bottomOffsetX;
+    const z0 = state.totalLength;
   
     // Calculating intermediate values
-    const x0 = tableSlope(z0, mpc) - mpc.tipOpening;
-    const breakZ = z0 - mpc.facingLength * Math.cos(mpc.tableAngle - Math.PI / 2);
+    const x0 = tableSlope(z0, state) - state.tipOpening;
+    const breakZ = z0 - state.facingLength * Math.cos(state.tableAngle - Math.PI / 2);
     const z1 = breakZ;
-    const x1 = tableSlope(z1, mpc);
+    const x1 = tableSlope(z1, state);
   
-    const g = -Math.tan(mpc.tableAngle - Math.PI / 2);
+    const g = -Math.tan(state.tableAngle - Math.PI / 2);
   
     const midz = (z0 + z1) / 2;
     const midx = (x0 + x1) / 2;
@@ -244,40 +244,45 @@ export function facingXCoord(z, mpc) {
   
     // Conditional return based on z and breakZ
     if (z < breakZ) {
-        return tableSlope(z, mpc);
+        return tableSlope(z, state);
     } else {
         return Math.sqrt(r2 - Math.pow(z - Z, 2)) + X;
     }
   }
-export function tableSlope(z, mpc) {
-    // Extracting values from the mpc object
-    const Z0 = mpc.bottomOffsetY;
-    const X0 = mpc.bottomOffsetX;
+export function tableSlope(z, state) {
+    // Extracting values from the state object
+    const Z0 = state.bottomOffsetY;
+    const X0 = state.bottomOffsetX;
   
     // Calculating the slope
-    return -Math.tan(mpc.tableAngle - Math.PI / 2) * (z - Z0) + X0;
+    return -Math.tan(state.tableAngle - Math.PI / 2) * (z - Z0) + X0;
   }
-export function lsFromBs(mpc) {
-    mpc.ls=mpc.Ts.map((tPoint, index) => {
-    const bPoint = mpc.Bs[index];
+export function lsFromBs(state) {
+    const ls=state.Ts.map((tPoint, index) => {
+    const bPoint = state.Bs[index];
     return Math.sqrt((tPoint.x - bPoint.x) ** 2 + (tPoint.y - bPoint.y) ** 2);
   });
+    return ls
   }
-export function Bsfromls(mpc) {
-    mpc.Bs=mpc.Ts.map((tPoint, index) => {
-    const l = mpc.ls[index];
-    let bx=tPoint.x - l * Math.cos(mpc.theta);
-    let by=tPoint.y - l * Math.sin(mpc.theta);
-    return {
-        x: bx,
-        y: by,
-      enabled:true};
-  })
-  }
-export function closestPointOnLine(x, y, mpc,index) {
-  const x0=mpc.Ts[index].x;
-  const y0=mpc.Ts[index].y;
-  const m=Math.tan(mpc.tableAngle-Math.PI/2);
+export function Bsfromls(state) {
+    const currentBs = state.Bs; // Get the current Bs state
+    const Bs = state.Ts.map((tPoint, index) => {
+        const l = state.ls[index];
+        let bx = tPoint.x - l * Math.cos(state.theta);
+        let by = tPoint.y - l * Math.sin(state.theta);
+        
+        return {
+            x: bx,
+            y: by,
+            enabled: true //currentBs[index] ? currentBs[index].enabled : true // Keep the original enabled state
+        };
+    });
+    return Bs;
+}
+export function closestPointOnLine(x, y, state,index) {
+  const x0=state.Ts[index].x;
+  const y0=state.Ts[index].y;
+  const m=Math.tan(state.tableAngle-Math.PI/2);
   const dx = 1;
   const dy = m;
   const t = ((x - x0) * dx + (y - y0) * dy) / (dx * dx + dy * dy);
@@ -297,26 +302,29 @@ export function deTransformMouseCoord(x,y,canvas) {
 
   return { x: preTransformedX, y: preTransformedY };
 }
-export function computeMaxl(index,mpc) {
+export function computeMaxl(index,state) {
   //compute that max l at T[index]
 
-  let geomPts=ptCoords(mpc);
+  let geomPts=ptCoords(state);
   let beakCirc=threePtCirc(geomPts.F,geomPts.E,geomPts.P);
-  let tPoint=mpc.Ts[index];
-  let intersection=lineCircIntersect(beakCirc,tPoint,Math.tan(mpc.theta),true);
+  let tPoint=state.Ts[index];
+  let intersection=lineCircIntersect(beakCirc,tPoint,Math.tan(state.theta),true);
   let maxl= Math.hypot(intersection.y-tPoint.y,intersection.x-tPoint.x);
   return maxl-1
 }
-export function computeLValue(nearestPt,index,mpc)  {
+export function computeLValue(nearestPt,index,state)  {
   // given the poitn nearest to the mouse on the TB line, compute the corresponding l, enforcing minimum = 0 and maximum = beakCirc  
-  if (nearestPt.x>=tableSlope(nearestPt.y,mpc)){
+  if (nearestPt.x>=tableSlope(nearestPt.y,state)){
     //clipping 0, if the point is to above the table
     return 0
   }
-  let l=Math.hypot(nearestPt.y - mpc.Ts[index].y, nearestPt.x - mpc.Ts[index].x);
-  let maxl= computeMaxl(index,mpc)
+  let l=Math.hypot(nearestPt.y - state.Ts[index].y, nearestPt.x - state.Ts[index].x);
+  let maxl= computeMaxl(index,state)
   return Math.min(maxl, l);
 }
 export function clipMinMax(x,minValue,maxValue) {
   return Math.max(minValue,Math.min(x,maxValue));
+}
+export function computeMaxFacing(state) {
+  return Math.round(state.totalLength-(windowVertex(state).y-state.windowLength-state.windowBottomWidth/2));
 }
